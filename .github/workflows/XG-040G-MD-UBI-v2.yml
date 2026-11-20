@@ -1,0 +1,202 @@
+name: XG-040G-MD UBI - 自选插件 v2
+
+on:
+  workflow_dispatch:
+    inputs:
+      TEST:
+        description: "仅输出配置文件（先验证插件，不编译固件）"
+        type: boolean
+        default: true
+        required: false
+      P_NIKKI:
+        description: "nikki / mihomo（默认已装，取消勾选=移除）"
+        type: boolean
+        default: true
+        required: false
+      P_SSRPLUS:
+        description: "SSR-Plus / xray-core（默认已装，取消勾选=移除）"
+        type: boolean
+        default: true
+        required: false
+      P_OPENCLASH:
+        description: "OpenClash"
+        type: boolean
+        default: false
+        required: false
+      P_PASSWALL:
+        description: "PassWall"
+        type: boolean
+        default: false
+        required: false
+      P_HOMEPROXY:
+        description: "Homeproxy"
+        type: boolean
+        default: false
+        required: false
+      P_MOSDNS:
+        description: "MosDNS"
+        type: boolean
+        default: false
+        required: false
+      P_DDNSGO:
+        description: "DDNS-GO"
+        type: boolean
+        default: false
+        required: false
+      P_LUCKY:
+        description: "Lucky（默认已装，取消勾选=移除）"
+        type: boolean
+        default: true
+        required: false
+      P_TAILSCALE:
+        description: "Tailscale Community"
+        type: boolean
+        default: false
+        required: false
+      P_QBITTORRENT:
+        description: "qBittorrent"
+        type: boolean
+        default: false
+        required: false
+      P_SAMBA4:
+        description: "Samba4 网络共享"
+        type: boolean
+        default: false
+        required: false
+      P_UPNP:
+        description: "UPnP"
+        type: boolean
+        default: false
+        required: false
+      P_AUTOREBOOT:
+        description: "定时重启（默认已装，取消勾选=移除）"
+        type: boolean
+        default: true
+        required: false
+      P_WOLPLUS:
+        description: "WOL Plus 远程唤醒（默认已装，取消勾选=移除）"
+        type: boolean
+        default: true
+        required: false
+      P_STORE:
+        description: "应用商店（默认已装，取消勾选=移除）"
+        type: boolean
+        default: true
+        required: false
+      P_QMODEM:
+        description: "QModem 短信/调制解调器"
+        type: boolean
+        default: false
+        required: false
+      P_DISKMAN:
+        description: "DiskMan 磁盘管理"
+        type: boolean
+        default: false
+        required: false
+      P_NETSPEEDTEST:
+        description: "网速测试"
+        type: boolean
+        default: false
+        required: false
+      P_TIMECONTROL:
+        description: "定时控制"
+        type: boolean
+        default: false
+        required: false
+      P_OPENLIST2:
+        description: "OpenList2 文件列表"
+        type: boolean
+        default: false
+        required: false
+      EXTRA:
+        description: "额外配置行（可选，每行一条，如 CONFIG_PACKAGE_luci-app-xxx=y）"
+        type: string
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  packages:
+    name: 生成插件配置
+    runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.make.outputs.list }}
+    env:
+      IN_NIKKI: ${{ inputs.P_NIKKI }}
+      IN_SSRPLUS: ${{ inputs.P_SSRPLUS }}
+      IN_OPENCLASH: ${{ inputs.P_OPENCLASH }}
+      IN_PASSWALL: ${{ inputs.P_PASSWALL }}
+      IN_HOMEPROXY: ${{ inputs.P_HOMEPROXY }}
+      IN_MOSDNS: ${{ inputs.P_MOSDNS }}
+      IN_DDNSGO: ${{ inputs.P_DDNSGO }}
+      IN_LUCKY: ${{ inputs.P_LUCKY }}
+      IN_TAILSCALE: ${{ inputs.P_TAILSCALE }}
+      IN_QBITTORRENT: ${{ inputs.P_QBITTORRENT }}
+      IN_SAMBA4: ${{ inputs.P_SAMBA4 }}
+      IN_UPNP: ${{ inputs.P_UPNP }}
+      IN_AUTOREBOOT: ${{ inputs.P_AUTOREBOOT }}
+      IN_WOLPLUS: ${{ inputs.P_WOLPLUS }}
+      IN_STORE: ${{ inputs.P_STORE }}
+      IN_QMODEM: ${{ inputs.P_QMODEM }}
+      IN_DISKMAN: ${{ inputs.P_DISKMAN }}
+      IN_NETSPEEDTEST: ${{ inputs.P_NETSPEEDTEST }}
+      IN_TIMECONTROL: ${{ inputs.P_TIMECONTROL }}
+      IN_OPENLIST2: ${{ inputs.P_OPENLIST2 }}
+      IN_EXTRA: ${{ inputs.EXTRA }}
+    steps:
+      - name: Compose CONFIG_PACKAGE lines
+        id: make
+        run: |
+          add() {
+            if [ "$2" = "true" ]; then
+              echo "CONFIG_PACKAGE_$1=y"
+            else
+              echo "CONFIG_PACKAGE_$1=n"
+            fi
+          }
+          {
+            echo 'list<<EOF'
+            add luci-app-nikki "$IN_NIKKI"
+            [ "$IN_NIKKI" = "true" ] && echo 'CONFIG_PACKAGE_mihomo=y'
+            add luci-app-ssr-plus "$IN_SSRPLUS"
+            [ "$IN_SSRPLUS" = "true" ] && echo 'CONFIG_PACKAGE_xray-core=y'
+            add luci-app-openclash "$IN_OPENCLASH"
+            add luci-app-passwall "$IN_PASSWALL"
+            add luci-app-homeproxy "$IN_HOMEPROXY"
+            add luci-app-mosdns "$IN_MOSDNS"
+            add luci-app-ddns-go "$IN_DDNSGO"
+            add luci-app-lucky "$IN_LUCKY"
+            add luci-app-tailscale-community "$IN_TAILSCALE"
+            add luci-app-qbittorrent "$IN_QBITTORRENT"
+            add luci-app-samba4 "$IN_SAMBA4"
+            add luci-app-upnp "$IN_UPNP"
+            add luci-app-autoreboot "$IN_AUTOREBOOT"
+            add luci-app-wolplus "$IN_WOLPLUS"
+            add luci-app-store "$IN_STORE"
+            add luci-app-qmodem "$IN_QMODEM"
+            add luci-app-diskman "$IN_DISKMAN"
+            add luci-app-netspeedtest "$IN_NETSPEEDTEST"
+            add luci-app-timecontrol "$IN_TIMECONTROL"
+            add luci-app-openlist2 "$IN_OPENLIST2"
+            [ -n "$IN_EXTRA" ] && printf '%s\n' "$IN_EXTRA"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+  build:
+    name: XG-040G-MD-UBI
+    needs: packages
+    uses: ./.github/workflows/WRT-CORE-2404.yml
+    with:
+      WRT_CONFIG: XG-040G-MD-UBI
+      WRT_THEME: footstrap
+      WRT_NAME: OWRT
+      WRT_SSID: OWRT
+      WRT_WORD: "12345678"
+      WRT_IP: 192.168.1.1
+      WRT_PW: 无
+      WRT_REPO: https://github.com/bingoguo93/immortalwrt.git
+      WRT_BRANCH: "6.18"
+      WRT_SOURCE: bingoguo93/immortalwrt
+      WRT_PACKAGE: ${{ needs.packages.outputs.list }}
+      WRT_TEST: ${{ inputs.TEST == true }}
