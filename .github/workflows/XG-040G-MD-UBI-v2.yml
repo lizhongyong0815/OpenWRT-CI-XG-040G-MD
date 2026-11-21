@@ -108,6 +108,11 @@ on:
         type: boolean
         default: false
         required: false
+      P_GECOOS:
+        description: "Gecoos AC（默认已装，取消勾选=移除）"
+        type: boolean
+        default: true
+        required: false
       EXTRA:
         description: "额外配置行（可选，每行一条，如 CONFIG_PACKAGE_luci-app-xxx=y）"
         type: string
@@ -143,6 +148,7 @@ jobs:
       IN_NETSPEEDTEST: ${{ inputs.P_NETSPEEDTEST }}
       IN_TIMECONTROL: ${{ inputs.P_TIMECONTROL }}
       IN_OPENLIST2: ${{ inputs.P_OPENLIST2 }}
+      IN_GECOOS: ${{ inputs.P_GECOOS }}
       IN_EXTRA: ${{ inputs.EXTRA }}
     steps:
       - name: Compose CONFIG_PACKAGE lines
@@ -179,6 +185,9 @@ jobs:
             add luci-app-netspeedtest "$IN_NETSPEEDTEST"
             add luci-app-timecontrol "$IN_TIMECONTROL"
             add luci-app-openlist2 "$IN_OPENLIST2"
+            add luci-app-gecoosac "$IN_GECOOS"
+            add gecoosac "$IN_GECOOS"
+            add luci-i18n-gecoosac-zh-cn "$IN_GECOOS"
             [ -n "$IN_EXTRA" ] && printf '%s\n' "$IN_EXTRA"
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
