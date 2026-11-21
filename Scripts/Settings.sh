@@ -11,6 +11,10 @@ sed -i "s/192\.168\.[0-9]*\.[0-9]*/$WRT_IP/g" $(find ./feeds/luci/modules/luci-m
 #添加编译日期标识
 sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ $WRT_MARK-$WRT_DATE')/g" $(find ./feeds/luci/modules/luci-mod-status/ -type f -name "10_system.js")
 
+#自定义固件品牌名称(默认 XgWrt;工作流若传入 WRT_BRAND 则以其为准)
+WRT_BRAND="${WRT_BRAND:-XgWrt}"
+sed -i 's/,$(VERSION_DIST),ImmortalWrt)/,$(VERSION_DIST),'"$WRT_BRAND"')/' ./include/version.mk
+
 WIFI_SH=$(find ./target/linux/{mediatek/filogic,qualcommax}/base-files/etc/uci-defaults/ -type f -name "*set-wireless.sh" 2>/dev/null)
 WIFI_UC="./package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc"
 if [ -f "$WIFI_SH" ]; then
